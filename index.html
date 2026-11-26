@@ -437,13 +437,35 @@
                     <textarea id="custom-lyrics" rows="6" required placeholder="When you try your best, but you don't succeed&#10;When you get what you want, but not what you need&#10;When you feel so tired, but you can't sleep&#10;Stuck in reverse..." class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:outline-none rounded-xl p-3.5 text-sm text-white leading-relaxed"></textarea>
                 </div>
 
+                <!-- Optional Gemini API Key Collapsible -->
+                <div class="border border-slate-800 rounded-xl bg-slate-950/60 overflow-hidden">
+                    <button type="button" onclick="toggleApiKeySettings()" class="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-900/70 transition">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="key" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            Pengaturan API Key Gemini (Opsional)
+                        </span>
+                        <i id="api-key-chevron" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="api-key-panel" class="hidden px-3.5 pb-3.5 pt-1 border-t border-slate-800/80 space-y-2">
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Jika panggilan AI bawaan terbatas, masukkan API Key Gemini pribadi Anda (disimpan aman di browser). Tanpa API Key pun, sistem otomatis memakai <strong>Mode Analisis Lokal Cerdas</strong>!
+                        </p>
+                        <div class="flex gap-2">
+                            <input type="password" id="custom-gemini-key" placeholder="AIzaSy..." class="flex-1 bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:outline-none rounded-lg px-3 py-1.5 text-xs text-white">
+                            <button type="button" onclick="saveUserApiKey()" class="bg-slate-800 hover:bg-indigo-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                Simpan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="custom-error" class="hidden text-xs text-rose-400 bg-rose-950/50 border border-rose-500/30 p-3 rounded-xl"></div>
 
                 <div class="flex items-center justify-end gap-2 pt-2">
                     <button type="button" onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-sm text-slate-300 hover:bg-slate-800 transition">Batal</button>
                     <button type="submit" id="custom-submit-btn" class="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg transition">
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        <span>Proses dengan AI</span>
+                        <span>Proses Materi Belajar</span>
                     </button>
                 </div>
             </form>
@@ -784,18 +806,64 @@
             "darling": { pos: "Noun", meaning: "Sayang / kekasih", ex: "Good morning, darling.", exId: "Selamat pagi, sayang." },
             "dive": { pos: "Verb", meaning: "Menyelam / terjun", ex: "He loves to dive into the pool.", exId: "Dia suka terjun ke kolam renang." },
             "follow": { pos: "Verb", meaning: "Mengikuti", ex: "Follow me to the exit.", exId: "Ikuti saya menuju pintu keluar." },
-            "sweet": { pos: "Adjective", meaning: "Manis / baik hati", ex: "That was very sweet of you.", exId: "Kamu baik sekali." }
+            "sweet": { pos: "Adjective", meaning: "Manis / baik hati", ex: "That was very sweet of you.", exId: "Kamu baik sekali." },
+            "yesterday": { pos: "Noun / Adverb", meaning: "Kemarin / masa lalu", ex: "Yesterday was a wonderful day.", exId: "Kemarin adalah hari yang indah." },
+            "troubles": { pos: "Noun", meaning: "Masalah / kesulitan", ex: "She shared all her troubles with me.", exId: "Dia berbagi semua masalahnya denganku." },
+            "seemed": { pos: "Verb (Past)", meaning: "Tampak / terlihat seperti", ex: "He seemed very happy yesterday.", exId: "Dia tampak sangat bahagia kemarin." },
+            "far": { pos: "Adverb / Adjective", meaning: "Jauh", ex: "How far is the station from here?", exId: "Seberapa jauh stasiun dari sini?" },
+            "away": { pos: "Adverb", meaning: "Jauh / pergi", ex: "Put your phone away while studying.", exId: "Jauhkan ponselmu saat belajar." },
+            "looks": { pos: "Verb", meaning: "Terlihat / tampak", ex: "It looks like it is going to rain.", exId: "Sepertinya akan turun hujan." },
+            "though": { pos: "Conjunction / Adverb", meaning: "Meskipun / seolah-olah (as though)", ex: "He acted as though nothing happened.", exId: "Dia bersikap seolah-olah tidak terjadi apa-apa." },
+            "stay": { pos: "Verb", meaning: "Tinggal / bertahan / tetap ada", ex: "Please stay here with me.", exId: "Tolong tetap di sini bersamaku." },
+            "believe": { pos: "Verb", meaning: "Percaya / meyakini", ex: "I believe in your ability.", exId: "Aku percaya pada kemampuanmu." },
+            "love": { pos: "Noun / Verb", meaning: "Cinta / mencintai", ex: "Love makes the world go round.", exId: "Cinta membuat dunia berputar." },
+            "heart": { pos: "Noun", meaning: "Hati / jantung", ex: "Follow your heart.", exId: "Ikuti kata hatimu." },
+            "dream": { pos: "Noun / Verb", meaning: "Mimpi / bermimpi", ex: "Never give up on your dreams.", exId: "Jangan pernah menyerah pada mimpimu." },
+            "night": { pos: "Noun", meaning: "Malam", ex: "The stars shine brightly at night.", exId: "Bintang-bintang bersinar terang di malam hari." },
+            "day": { pos: "Noun", meaning: "Hari / siang", ex: "Have a great day!", exId: "Semoga harimu menyenangkan!" },
+            "time": { pos: "Noun", meaning: "Waktu / kali", ex: "Time flies so fast.", exId: "Waktu berlalu begitu cepat." },
+            "know": { pos: "Verb", meaning: "Tahu / mengenal", ex: "I know the answer to that question.", exId: "Aku tahu jawaban dari pertanyaan itu." },
+            "feel": { pos: "Verb", meaning: "Merasa / merasakan", ex: "I feel much better today.", exId: "Aku merasa jauh lebih baik hari ini." },
+            "never": { pos: "Adverb", meaning: "Tidak pernah", ex: "I will never forget this moment.", exId: "Aku tidak akan pernah melupakan momen ini." },
+            "always": { pos: "Adverb", meaning: "Selalu", ex: "She always arrives on time.", exId: "Dia selalu tiba tepat waktu." },
+            "forever": { pos: "Adverb", meaning: "Selamanya", ex: "Nothing lasts forever.", exId: "Tidak ada yang bertahan selamanya." },
+            "together": { pos: "Adverb", meaning: "Bersama-sama", ex: "We can solve this problem together.", exId: "Kita bisa menyelesaikan masalah ini bersama." },
+            "alone": { pos: "Adjective / Adverb", meaning: "Sendirian", ex: "He likes walking alone in the park.", exId: "Dia suka berjalan sendirian di taman." },
+            "eyes": { pos: "Noun", meaning: "Mata", ex: "She has beautiful brown eyes.", exId: "Dia memiliki mata cokelat yang indah." },
+            "mind": { pos: "Noun / Verb", meaning: "Pikiran / keberatan", ex: "Keep an open mind.", exId: "Bukalah pikiranmu." },
+            "soul": { pos: "Noun", meaning: "Jiwa", ex: "Music touches the soul.", exId: "Musik menyentuh jiwa." },
+            "pain": { pos: "Noun", meaning: "Rasa sakit / luka batin", ex: "Time heals all pain.", exId: "Waktu menyembuhkan semua rasa sakit." },
+            "tears": { pos: "Noun", meaning: "Air mata", ex: "Tears of joy rolled down her cheeks.", exId: "Air mata kebahagiaan mengalir di pipinya." },
+            "smile": { pos: "Noun / Verb", meaning: "Senyuman / tersenyum", ex: "Your smile brightens my day.", exId: "Senyumanmu mencerahkan hariku." },
+            "rain": { pos: "Noun / Verb", meaning: "Hujan", ex: "I love listening to the sound of rain.", exId: "Aku suka mendengarkan suara hujan." },
+            "sky": { pos: "Noun", meaning: "Langit", ex: "The sky is clear and blue.", exId: "Langit cerah dan biru." },
+            "stars": { pos: "Noun", meaning: "Bintang-bintang", ex: "Look at the stars tonight.", exId: "Lihatlah bintang-bintang malam ini." },
+            "home": { pos: "Noun / Adverb", meaning: "Rumah / pulang", ex: "There is no place like home.", exId: "Tidak ada tempat senyaman rumah." },
+            "wait": { pos: "Verb", meaning: "Menunggu", ex: "Please wait for a moment.", exId: "Tolong tunggu sebentar." },
+            "hold": { pos: "Verb", meaning: "Memegang / memeluk / menahan", ex: "Hold my hand tightly.", exId: "Pegang tanganku erat-erat." },
+            "break": { pos: "Verb / Noun", meaning: "Mematahkan / hancur / istirahat", ex: "Don't break my heart.", exId: "Jangan patahkan hatiku." },
+            "change": { pos: "Verb / Noun", meaning: "Berubah / mengubah / perubahan", ex: "Everything changes over time.", exId: "Segalanya berubah seiring waktu." },
+            "try": { pos: "Verb", meaning: "Mencoba / berusaha", ex: "Always try your best.", exId: "Selalu lakukan yang terbaik." },
+            "succeed": { pos: "Verb", meaning: "Berhasil / sukses", ex: "If you work hard, you will succeed.", exId: "Jika kamu bekerja keras, kamu akan berhasil." },
+            "need": { pos: "Verb / Noun", meaning: "Membutuhkan / kebutuhan", ex: "I need some help with my homework.", exId: "Aku butuh bantuan untuk PR-ku." },
+            "tired": { pos: "Adjective", meaning: "Lelah / capek", ex: "I am too tired to walk.", exId: "Aku terlalu lelah untuk berjalan." },
+            "sleep": { pos: "Verb / Noun", meaning: "Tidur", ex: "You should get enough sleep.", exId: "Kamu sebaiknya tidur yang cukup." },
+            "reverse": { pos: "Noun / Verb", meaning: "Mundur / kebalikan", ex: "The car was moving in reverse.", exId: "Mobil itu bergerak mundur." }
         };
 
         // ==========================================
-        // 2. APPLICATION STATE
+        // 2. APPLICATION STATE & STORAGE
         // ==========================================
+        const STORAGE_XP_KEY = 'lyriclingo_user_xp';
+        const STORAGE_CUSTOM_SONGS_KEY = 'lyriclingo_custom_songs';
+        const STORAGE_API_KEY = 'lyriclingo_gemini_api_key';
+
         let currentSong = songsDatabase[0];
         let currentFilter = 'ALL';
         let speechRate = 1;
         let isPlayingAll = false;
         let currentLineIndex = -1;
-        let userXP = 0;
+        let userXP = parseInt(localStorage.getItem(STORAGE_XP_KEY) || '0', 10);
 
         // Blanks Game State
         let selectedBankWord = null;
@@ -809,6 +877,24 @@
         // 3. INITIALIZATION & NAVIGATION
         // ==========================================
         window.onload = () => {
+            // Load saved custom songs from localStorage
+            try {
+                const savedSongs = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_SONGS_KEY) || '[]');
+                if (Array.isArray(savedSongs) && savedSongs.length > 0) {
+                    songsDatabase.unshift(...savedSongs);
+                }
+            } catch (e) {
+                console.warn('Gagal memuat lagu tersimpan:', e);
+            }
+
+            // Load saved optional API key
+            const savedApiKey = localStorage.getItem(STORAGE_API_KEY) || '';
+            const keyInput = document.getElementById('custom-gemini-key');
+            if (keyInput && savedApiKey) {
+                keyInput.value = savedApiKey;
+            }
+
+            document.getElementById('user-xp').textContent = `${userXP} XP`;
             lucide.createIcons();
             renderSongList();
             selectSong(songsDatabase[0].id);
@@ -816,6 +902,7 @@
 
         function addXP(points, reason) {
             userXP += points;
+            localStorage.setItem(STORAGE_XP_KEY, String(userXP));
             document.getElementById('user-xp').textContent = `${userXP} XP`;
             showToast(`+${points} XP! ${reason}`);
         }
@@ -1328,16 +1415,25 @@
         // ==========================================
         // 10. GEMINI API INTEGRATION (AI TUTOR & CUSTOM LYRICS)
         // ==========================================
-        async function fetchWithBackoff(url, options, maxRetries = 4) {
-            let delay = 1000;
+        function getEffectiveApiKey() {
+            const userKey = (localStorage.getItem(STORAGE_API_KEY) || '').trim();
+            return userKey || "";
+        }
+
+        async function fetchWithBackoff(url, options, maxRetries = 2) {
+            let delay = 800;
             for (let i = 0; i < maxRetries; i++) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
                 try {
-                    const response = await fetch(url, options);
+                    const response = await fetch(url, { ...options, signal: controller.signal });
+                    clearTimeout(timeoutId);
                     if (response.ok) return await response.json();
                     if (response.status !== 429 && response.status < 500) {
                         throw new Error(`HTTP Error: ${response.status}`);
                     }
                 } catch (err) {
+                    clearTimeout(timeoutId);
                     if (i === maxRetries - 1) throw err;
                 }
                 await new Promise(res => setTimeout(res, delay));
@@ -1346,8 +1442,8 @@
         }
 
         async function callGeminiText(userPrompt, systemInstruction) {
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const apiKey = getEffectiveApiKey();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: userPrompt }] }],
                 systemInstruction: { parts: [{ text: systemInstruction }] }
@@ -1361,8 +1457,8 @@
         }
 
         async function callGeminiJSON(userPrompt) {
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const apiKey = getEffectiveApiKey();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: userPrompt }] }],
                 generationConfig: {
@@ -1374,7 +1470,9 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            return result?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+            const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+            // Clean markdown code fences if present
+            return rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
         }
 
         // AI Language Tutor Chat
@@ -1457,6 +1555,312 @@
             document.getElementById('custom-error').classList.add('hidden');
         }
 
+        function toggleApiKeySettings() {
+            const panel = document.getElementById('api-key-panel');
+            const chevron = document.getElementById('api-key-chevron');
+            panel.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        function saveUserApiKey() {
+            const val = document.getElementById('custom-gemini-key').value.trim();
+            if (val) {
+                localStorage.setItem(STORAGE_API_KEY, val);
+                showToast('API Key Gemini tersimpan di browser!');
+            } else {
+                localStorage.removeItem(STORAGE_API_KEY);
+                showToast('API Key dihapus, menggunakan mode default.');
+            }
+        }
+
+        // ==========================================
+        // 11. ROBUST LOCAL NLP / RULE-BASED FALLBACK GENERATOR
+        // ==========================================
+        const quickWordGloss = {
+            "i": "aku", "you": "kamu", "we": "kita", "they": "mereka", "he": "dia", "she": "dia", "it": "itu",
+            "my": "milikku", "your": "milikmu", "our": "milik kita", "their": "milik mereka",
+            "me": "aku", "us": "kita", "them": "mereka",
+            "am": "adalah", "is": "adalah", "are": "adalah", "was": "dulu", "were": "dulu",
+            "have": "punya", "has": "punya", "had": "punya", "do": "melakukan", "does": "melakukan", "did": "melakukan",
+            "will": "akan", "would": "akan", "can": "bisa", "could": "bisa", "should": "seharusnya", "must": "harus",
+            "all": "semua", "so": "sangat", "far": "jauh", "away": "pergi/jauh", "now": "sekarang",
+            "here": "di sini", "there": "di sana", "to": "untuk", "in": "di dalam", "on": "di atas",
+            "with": "dengan", "without": "tanpa", "for": "untuk", "from": "dari", "and": "dan", "but": "tapi",
+            "or": "atau", "if": "jika", "when": "ketika", "where": "di mana", "why": "mengapa", "how": "bagaimana",
+            "not": "tidak", "no": "tidak", "never": "tidak pernah", "always": "selalu", "ever": "pernah",
+            "just": "hanya", "only": "hanya", "still": "masih", "again": "lagi", "back": "kembali",
+            "as": "seperti", "though": "seolah-olah", "like": "seperti", "oh": "oh", "yeah": "ya",
+            "yesterday": "kemarin", "troubles": "masalah-masalah", "seemed": "tampak", "looks": "terlihat",
+            "stay": "tinggal/bertahan", "believe": "percaya", "love": "cinta", "heart": "hati",
+            "dream": "mimpi", "dreams": "mimpi-mimpi", "night": "malam", "day": "hari", "time": "waktu",
+            "know": "tahu", "feel": "merasa", "see": "melihat", "look": "melihat", "hear": "mendengar",
+            "say": "berkata", "said": "berkata", "tell": "memberitahu", "go": "pergi", "come": "datang",
+            "want": "ingin", "need": "butuh", "try": "mencoba", "best": "terbaik", "succeed": "berhasil",
+            "get": "mendapatkan", "tired": "lelah", "sleep": "tidur", "stuck": "terjebak", "reverse": "mundur",
+            "alone": "sendirian", "together": "bersama", "forever": "selamanya", "world": "dunia",
+            "life": "hidup", "light": "cahaya", "dark": "gelap", "rain": "hujan", "sky": "langit",
+            "stars": "bintang", "eyes": "mata", "mind": "pikiran", "soul": "jiwa", "smile": "senyum",
+            "tears": "air mata", "pain": "rasa sakit", "hope": "harapan", "home": "rumah", "wait": "menunggu",
+            "hold": "memegang", "break": "hancur", "change": "berubah", "lost": "tersesat", "found": "menemukan"
+        };
+
+        const phraseOverrides = [
+            { regex: /as though/gi, id: "seolah-olah" },
+            { regex: /far away/gi, id: "sangat jauh" },
+            { regex: /here to stay/gi, id: "tetap bertahan di sini" },
+            { regex: /believe in/gi, id: "percaya pada" },
+            { regex: /try your best/gi, id: "berusaha sebaik mungkin" },
+            { regex: /stuck in reverse/gi, id: "terjebak berjalan mundur" },
+            { regex: /count on/gi, id: "mengandalkan" },
+            { regex: /give up/gi, id: "menyerah" },
+            { regex: /fall in love|fell in love/gi, id: "jatuh cinta" }
+        ];
+
+        const stopWords = new Set([
+            "the", "and", "but", "for", "nor", "yet", "so", "a", "an", "in", "on", "at", "to", "from",
+            "by", "with", "of", "as", "is", "am", "are", "was", "were", "be", "been", "being", "have",
+            "has", "had", "do", "does", "did", "i", "you", "he", "she", "it", "we", "they", "my", "your",
+            "his", "her", "its", "our", "their", "me", "him", "us", "them", "this", "that", "these",
+            "those", "oh", "yeah", "ooh", "ah", "na", "la", "now", "all", "just", "they're", "i'm", "it's"
+        ]);
+
+        function translateLineLocally(line) {
+            let working = line;
+            const matchedPhrases = [];
+            phraseOverrides.forEach(p => {
+                if (p.regex.test(working)) {
+                    matchedPhrases.push(p.id);
+                }
+            });
+
+            const words = line.toLowerCase().replace(/[^a-z\s']/g, '').split(/\s+/).filter(Boolean);
+            const glossed = words.map(w => {
+                const base = w.replace(/'re$|'s$|'m$|'ll$|'ve$|n't$/, '');
+                return quickWordGloss[w] || quickWordGloss[base] || w;
+            });
+
+            let sentenceGloss = glossed.join(' ');
+            sentenceGloss = sentenceGloss.charAt(0).toUpperCase() + sentenceGloss.slice(1);
+            if (matchedPhrases.length > 0) {
+                return `${sentenceGloss} (Frasa kunci: ${matchedPhrases.join(', ')})`;
+            }
+            return `${sentenceGloss}`;
+        }
+
+        function inferWordMeta(word) {
+            const lower = word.toLowerCase();
+            if (localDictionary[lower]) {
+                return {
+                    term: word.charAt(0).toUpperCase() + word.slice(1),
+                    type: localDictionary[lower].pos,
+                    literal: localDictionary[lower].meaning.split('/')[0].trim(),
+                    meaning: localDictionary[lower].meaning,
+                    example: localDictionary[lower].ex
+                };
+            }
+
+            let pos = "Vocabulary";
+            if (lower.endsWith("ing")) pos = "Verb / Participle (-ing)";
+            else if (lower.endsWith("ed")) pos = "Verb (Past Tense)";
+            else if (lower.endsWith("ly")) pos = "Adverb (-ly)";
+            else if (lower.endsWith("tion") || lower.endsWith("ness") || lower.endsWith("ment")) pos = "Noun";
+            else if (lower.endsWith("ful") || lower.endsWith("less") || lower.endsWith("ous")) pos = "Adjective";
+
+            const meaning = quickWordGloss[lower]
+                ? `Berarti "${quickWordGloss[lower]}" dalam konteks kalimat lagu ini.`
+                : `Kata penting dalam lirik lagu ini (klik kata pada tab Lirik untuk mendengarkan pelafalannya).`;
+
+            return {
+                term: word.charAt(0).toUpperCase() + word.slice(1),
+                type: pos,
+                literal: quickWordGloss[lower] || word,
+                meaning: meaning,
+                example: `Used in lyric: "${word}"`
+            };
+        }
+
+        function generateLocalSongLesson(title, artist, lines) {
+            // 1. Build lyrics array with Indonesian glosses
+            const lyrics = lines.map(enLine => ({
+                en: enLine,
+                id: translateLineLocally(enLine)
+            }));
+
+            // 2. Determine difficulty level heuristically
+            const avgWords = lines.reduce((acc, l) => acc + l.split(/\s+/).length, 0) / lines.length;
+            const level = avgWords <= 6 ? "Beginner" : avgWords <= 10 ? "Intermediate" : "Advanced";
+
+            // 3. Extract 4-6 meaningful vocabulary words & detected idioms
+            const candidateMap = new Map();
+            lines.forEach(line => {
+                // Check common idioms first
+                if (/as though/i.test(line)) {
+                    candidateMap.set("as though", {
+                        term: "As though",
+                        type: "Conjunction / Idiom",
+                        literal: "Seperti meskipun",
+                        meaning: "Seolah-olah; digunakan untuk menggambarkan situasi yang tampak nyata.",
+                        example: "It looks as though they're here to stay."
+                    });
+                }
+                if (/here to stay/i.test(line)) {
+                    candidateMap.set("here to stay", {
+                        term: "Here to stay",
+                        type: "Idiom",
+                        literal: "Di sini untuk tinggal",
+                        meaning: "Sesuatu yang bersifat permanen, bertahan lama, dan tidak akan hilang dalam waktu dekat.",
+                        example: "Digital music is definitely here to stay."
+                    });
+                }
+                if (/far away/i.test(line)) {
+                    candidateMap.set("far away", {
+                        term: "Far away",
+                        type: "Adverbial Phrase",
+                        literal: "Jauh pergi",
+                        meaning: "Sangat jauh jaraknya (baik secara fisik maupun dalam ingatan/waktu).",
+                        example: "All my troubles seemed so far away."
+                    });
+                }
+                if (/believe in/i.test(line)) {
+                    candidateMap.set("believe in", {
+                        term: "Believe in",
+                        type: "Phrasal Verb",
+                        literal: "Percaya di dalam",
+                        meaning: "Memiliki keyakinan kuat terhadap keberadaan, nilai, atau kebenaran sesuatu.",
+                        example: "I believe in the power of music."
+                    });
+                }
+
+                const tokens = line.replace(/[^a-zA-Z\s']/g, '').split(/\s+/).filter(Boolean);
+                tokens.forEach(tok => {
+                    const clean = tok.toLowerCase();
+                    if (clean.length >= 4 && !stopWords.has(clean) && !candidateMap.has(clean)) {
+                        const meta = inferWordMeta(clean);
+                        // Find the full lyric line where this word appears for a great contextual example
+                        meta.example = line;
+                        candidateMap.set(clean, meta);
+                    }
+                });
+            });
+
+            const vocab = Array.from(candidateMap.values()).slice(0, 6);
+
+            // 4. Generate Fill-in-the-Blank items (1 target word per line, up to 5 lines)
+            const usedBlankAnswers = new Set();
+            const blanks = [];
+            for (const line of lines) {
+                if (blanks.length >= 5) break;
+                const tokens = line.split(/\s+/);
+                // Pick the best content word in this line
+                let chosenIdx = -1;
+                let chosenClean = "";
+                for (let i = 0; i < tokens.length; i++) {
+                    const clean = tokens[i].replace(/[^a-zA-Z']/g, '');
+                    const lower = clean.toLowerCase();
+                    if (clean.length >= 4 && !stopWords.has(lower) && !usedBlankAnswers.has(lower)) {
+                        chosenIdx = i;
+                        chosenClean = clean;
+                        break;
+                    }
+                }
+                // Fallback: pick longest word if all are short
+                if (chosenIdx === -1) {
+                    let maxLen = 0;
+                    tokens.forEach((t, i) => {
+                        const clean = t.replace(/[^a-zA-Z']/g, '');
+                        if (clean.length > maxLen && !usedBlankAnswers.has(clean.toLowerCase())) {
+                            maxLen = clean.length;
+                            chosenIdx = i;
+                            chosenClean = clean;
+                        }
+                    });
+                }
+                if (chosenIdx !== -1 && chosenClean) {
+                    usedBlankAnswers.add(chosenClean.toLowerCase());
+                    const blankTokens = [...tokens];
+                    blankTokens[chosenIdx] = blankTokens[chosenIdx].replace(chosenClean, "___");
+                    blanks.push({
+                        sentence: blankTokens.join(' '),
+                        answer: chosenClean
+                    });
+                }
+            }
+
+            // 5. Generate 3-4 Multiple-Choice Quiz questions based on the pasted lyrics
+            const quiz = [];
+            if (vocab.length > 0) {
+                const v0 = vocab[0];
+                quiz.push({
+                    question: `Apa makna yang paling tepat untuk kata/frasa "${v0.term}" dalam lagu "${title}"?`,
+                    options: [
+                        v0.meaning,
+                        "Berlari menjauh tanpa alasan yang jelas",
+                        "Menghitung waktu di malam hari",
+                        "Melupakan semua kenangan indah"
+                    ],
+                    correct: 0,
+                    explanation: `Dalam konteks lirik "${title}", "${v0.term}" (${v0.type}) memiliki arti: ${v0.meaning}`
+                });
+            }
+
+            if (vocab.length > 1) {
+                const v1 = vocab[1];
+                quiz.push({
+                    question: `Termasuk jenis kata/struktur apakah "${v1.term}" pada lirik "${v1.example}"?`,
+                    options: [
+                        "Angka / Bilangan (Numeral)",
+                        v1.type,
+                        "Kata seru (Interjection)",
+                        "Nama tempat (Proper Noun)"
+                    ],
+                    correct: 1,
+                    explanation: `"${v1.term}" berfungsi sebagai ${v1.type} yang memperkaya makna kalimat "${v1.example}".`
+                });
+            }
+
+            // Line comprehension question
+            const sampleLine = lyrics[0];
+            quiz.push({
+                question: `Apa maksud dari baris lirik "${sampleLine.en}"?`,
+                options: [
+                    "Menyatakan ketidaksukaan terhadap musik",
+                    sampleLine.id,
+                    "Mengajak pendengar pergi ke luar negeri",
+                    "Menceritakan cuaca di pagi hari"
+                ],
+                correct: 1,
+                explanation: `Baris "${sampleLine.en}" diterjemahkan secara kontekstual menjadi: "${sampleLine.id}".`
+            });
+
+            if (lines.length >= 2) {
+                const lastLine = lyrics[lyrics.length - 1];
+                quiz.push({
+                    question: `Manakah terjemahan yang paling sesuai untuk baris "${lastLine.en}"?`,
+                    options: [
+                        "Aku tidak ingin mendengar lagu ini lagi",
+                        "Hari ini terasa sangat membosankan",
+                        lastLine.id,
+                        "Semua orang sedang tertidur lelap"
+                    ],
+                    correct: 2,
+                    explanation: `Terjemahan kontekstual untuk "${lastLine.en}" adalah "${lastLine.id}".`
+                });
+            }
+
+            return {
+                id: `custom-${Date.now()}`,
+                title: title,
+                artist: artist,
+                level: level,
+                genre: 'Custom Study Edition',
+                emoji: '🎵',
+                lyrics: lyrics,
+                vocab: vocab,
+                blanks: blanks,
+                quiz: quiz
+            };
+        }
+
         async function generateCustomSong(e) {
             e.preventDefault();
             const title = document.getElementById('custom-title').value.trim();
@@ -1465,7 +1869,7 @@
             const submitBtn = document.getElementById('custom-submit-btn');
             const errBox = document.getElementById('custom-error');
 
-            const lines = rawLyrics.split('\n').map(l => l.trim()).filter(l => l.length > 0).slice(0, 14);
+            const lines = rawLyrics.split('\n').map(l => l.trim()).filter(l => l.length > 0).slice(0, 16);
             if (lines.length < 2) {
                 errBox.textContent = "Masukkan minimal 2 baris lirik lagu Bahasa Inggris.";
                 errBox.classList.remove('hidden');
@@ -1474,8 +1878,11 @@
 
             errBox.classList.add('hidden');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>AI Sedang Memproses...</span>`;
+            submitBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Memproses Materi...</span>`;
             lucide.createIcons();
+
+            let newSong = null;
+            let usedFallback = false;
 
             try {
                 const prompt = `Analisis lirik lagu Bahasa Inggris berjudul "${title}" oleh "${artist}" berikut ini untuk aplikasi belajar bahasa Inggris bagi orang Indonesia:
@@ -1512,42 +1919,62 @@ Kembalikan HANYA JSON valid sesuai struktur persis berikut:
     }
   ]
 }
-Pastikan minimal ada 3 item vocab, 4 item blanks, dan 2 item quiz.`;
+Pastikan minimal ada 4 item vocab, 4 item blanks, dan 3 item quiz.`;
 
                 const jsonStr = await callGeminiJSON(prompt);
                 const generated = JSON.parse(jsonStr);
 
-                const newSong = {
+                if (!generated || !Array.isArray(generated.lyrics) || generated.lyrics.length === 0) {
+                    throw new Error("Format respons AI tidak lengkap");
+                }
+
+                newSong = {
                     id: `custom-${Date.now()}`,
                     title: title,
                     artist: artist,
                     level: ['Beginner', 'Intermediate', 'Advanced'].includes(generated.level) ? generated.level : 'Intermediate',
                     genre: generated.genre || 'Custom Song',
                     emoji: '✨',
-                    lyrics: generated.lyrics && generated.lyrics.length ? generated.lyrics : lines.map(l => ({ en: l, id: '(Terjemahan tidak tersedia)' })),
-                    vocab: generated.vocab || [],
-                    blanks: generated.blanks || [],
-                    quiz: generated.quiz || []
+                    lyrics: generated.lyrics,
+                    vocab: Array.isArray(generated.vocab) && generated.vocab.length ? generated.vocab : generateLocalSongLesson(title, artist, lines).vocab,
+                    blanks: Array.isArray(generated.blanks) && generated.blanks.length ? generated.blanks : generateLocalSongLesson(title, artist, lines).blanks,
+                    quiz: Array.isArray(generated.quiz) && generated.quiz.length ? generated.quiz : generateLocalSongLesson(title, artist, lines).quiz
                 };
-
-                songsDatabase.unshift(newSong);
-                filterSongs('ALL');
-                selectSong(newSong.id);
-                closeCustomModal();
-                addXP(50, "Membuat materi belajar lagu custom!");
-
-                // Clear inputs
-                document.getElementById('custom-title').value = '';
-                document.getElementById('custom-artist').value = '';
-                document.getElementById('custom-lyrics').value = '';
             } catch (err) {
-                errBox.textContent = "Terjadi kendala saat AI memproses lirik. Silakan coba lagi beberapa saat.";
-                errBox.classList.remove('hidden');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Proses dengan AI</span>`;
-                lucide.createIcons();
+                // Seamless automatic local fallback so user never gets stuck on an error screen
+                console.info('Menggunakan generator lokal otomatis karena API tidak tersedia:', err.message);
+                newSong = generateLocalSongLesson(title, artist, lines);
+                usedFallback = true;
             }
+
+            // Save custom song to database & localStorage
+            songsDatabase.unshift(newSong);
+            try {
+                const existingSaved = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_SONGS_KEY) || '[]');
+                existingSaved.unshift(newSong);
+                localStorage.setItem(STORAGE_CUSTOM_SONGS_KEY, JSON.stringify(existingSaved.slice(0, 20)));
+            } catch (storageErr) {
+                console.warn('Gagal menyimpan ke localStorage:', storageErr);
+            }
+
+            filterSongs('ALL');
+            selectSong(newSong.id);
+            closeCustomModal();
+
+            if (usedFallback) {
+                addXP(50, "Materi dibuat (Mode Analisis Lokal)!");
+            } else {
+                addXP(50, "Materi belajar AI berhasil dibuat!");
+            }
+
+            // Clear inputs
+            document.getElementById('custom-title').value = '';
+            document.getElementById('custom-artist').value = '';
+            document.getElementById('custom-lyrics').value = '';
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Proses Materi Belajar</span>`;
+            lucide.createIcons();
         }
 
         function escapeHTML(str) {
