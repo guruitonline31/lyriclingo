@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LyricLingo - Belajar Bahasa Inggris dari Lagu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.8);
+        }
+        .lyric-word {
+            transition: all 0.15s ease;
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+        .lyric-word:hover {
+            background-color: rgba(99, 102, 241, 0.35);
+            color: #c7d2fe;
+            cursor: pointer;
+        }
+        .active-line {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border-left: 4px solid #818cf8;
+        }
+        @keyframes pulse-wave {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+        .equalizer-bar {
+            animation: pulse-wave 0.8s infinite ease-in-out;
+        }
+        .equalizer-bar:nth-child(2) { animation-delay: 0.2s; }
+        .equalizer-bar:nth-child(3) { animation-delay: 0.4s; }
+        .equalizer-bar:nth-child(4) { animation-delay: 0.1s; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                    <i data-lucide="music" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent">
+                        LyricLingo
+                    </h1>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">Belajar Bahasa Inggris Lewat Lagu</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- XP / Score Badge -->
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-amber-400">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span id="user-xp">0 XP</span>
+                </div>
+
+                <!-- Custom Song Button -->
+                <button onclick="openCustomModal()" class="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs sm:text-sm font-medium px-3.5 py-2 rounded-xl shadow-lg shadow-indigo-600/20 transition-all active:scale-95">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Input Lirik Sendiri</span>
+                    <span class="sm:hidden">Custom</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Sidebar: Song Selection (3 columns on lg) -->
+        <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
+            <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i data-lucide="disc" class="w-4 h-4 text-indigo-400"></i>
+                        Pilih Lagu Belajar
+                    </h2>
+                    <span id="song-count" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">4 Lagu</span>
+                </div>
+
+                <!-- Filter Level -->
+                <div class="flex gap-1.5 mb-4 overflow-x-auto pb-1">
+                    <button onclick="filterSongs('ALL')" id="filter-ALL" class="filter-btn active px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-600 text-white transition">Semua</button>
+                    <button onclick="filterSongs('Beginner')" id="filter-Beginner" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Beginner</button>
+                    <button onclick="filterSongs('Intermediate')" id="filter-Intermediate" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Intermediate</button>
+                    <button onclick="filterSongs('Advanced')" id="filter-Advanced" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Advanced</button>
+                </div>
+
+                <!-- Song List -->
+                <div id="song-list" class="space-y-2.5 max-h-[340px] lg:max-h-[520px] overflow-y-auto pr-1">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Quick Tip Card -->
+            <div class="bg-gradient-to-br from-indigo-950/60 to-purple-950/40 border border-indigo-500/20 rounded-2xl p-4 hidden lg:block">
+                <div class="flex items-start gap-3">
+                    <div class="p-2 bg-indigo-500/20 rounded-lg text-indigo-300 mt-0.5">
+                        <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-indigo-200 mb-1">Tips Belajar Efektif</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Klik <b>kata apa saja</b> di dalam lirik untuk melihat arti & jenis katanya secara instan, lalu uji ingatanmu di tab <b>Latihan Lengkapi Lirik</b>!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace (9 columns on lg) -->
+        <section class="lg:col-span-8 xl:col-span-9 flex flex-col gap-5">
+
+            <!-- Now Playing / Audio Simulator Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950/50 to-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-44 h-44 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-10 w-44 h-44 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                    <!-- Song Info -->
+                    <div class="flex items-center gap-4">
+                        <div id="active-song-cover" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shrink-0 text-3xl">
+                            🎵
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span id="active-song-level" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    Beginner
+                                </span>
+                                <span id="active-song-genre" class="text-xs text-slate-400">Pop / Inspirational</span>
+                            </div>
+                            <h2 id="active-song-title" class="text-xl sm:text-2xl font-bold text-white leading-tight">Count On Me</h2>
+                            <p id="active-song-artist" class="text-sm text-indigo-300 font-medium">Bruno Mars (Adapted Study Snippet)</p>
+                        </div>
+                    </div>
+
+                    <!-- Karaoke TTS Controls -->
+                    <div class="flex flex-col sm:items-end gap-2.5 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                        <div class="flex items-center gap-2">
+                            <button id="play-all-btn" onclick="togglePlayAll()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition active:scale-95">
+                                <i id="play-all-icon" data-lucide="play" class="w-4 h-4 fill-current"></i>
+                                <span id="play-all-text">Putar Karaoke</span>
+                            </button>
+                            <button onclick="stopSpeech()" title="Hentikan Audio" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition">
+                                <i data-lucide="square" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Speed & Translation Controls -->
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
+                            <span class="text-slate-400">Kecepatan:</span>
+                            <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800">
+                                <button onclick="setSpeechRate(0.75)" id="rate-0.75" class="rate-btn px-2 py-1 rounded-md text-slate-400 hover:text-white transition">0.75x</button>
+                                <button onclick="setSpeechRate(1)" id="rate-1" class="rate-btn px-2 py-1 rounded-md bg-indigo-600 text-white font-medium transition">1x</button>
+                                <button onclick="setSpeechRate(1.25)" id="rate-1.25" class="rate-btn px-2 py-1 rounded-md text-slate-400 hover:text-white transition">1.25x</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="flex overflow-x-auto gap-2 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
+                <button onclick="switchTab('lyrics')" id="tab-lyrics" class="tab-btn flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow transition">
+                    <i data-lucide="align-left" class="w-4 h-4"></i>
+                    <span>Lirik & Terjemahan</span>
+                </button>
+                <button onclick="switchTab('vocab')" id="tab-vocab" class="tab-btn flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>Kosakata & Idiom</span>
+                </button>
+                <button onclick="switchTab('blanks')" id="tab-blanks" class="tab-btn flex-1 min-w-[155px] flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i data-lucide="puzzle" class="w-4 h-4"></i>
+                    <span>Lengkapi Lirik</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn flex-1 min-w-[145px] flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+                    <span>Kuis & Tanya AI</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: Lirik & Terjemahan -->
+            <div id="panel-lyrics" class="tab-panel bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-white">Lirik Interaktif</h3>
+                        <p class="text-xs text-slate-400">Klik ikon speaker untuk mendengar pelafalan per baris, atau klik kata untuk arti kamus.</p>
+                    </div>
+                    <label class="inline-flex items-center gap-2.5 cursor-pointer bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <input type="checkbox" id="toggle-translation" checked onchange="renderLyrics()" class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all relative peer-checked:bg-indigo-600"></div>
+                        <span class="text-xs font-medium text-slate-300">Terjemahan Indonesia</span>
+                    </label>
+                </div>
+
+                <!-- Lyrics Container -->
+                <div id="lyrics-container" class="space-y-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 2: Kosakata & Idiom -->
+            <div id="panel-vocab" class="tab-panel hidden bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+                <div class="mb-5">
+                    <h3 class="text-base sm:text-lg font-bold text-white">Kosakata Kunci, Slang & Idiom</h3>
+                    <p class="text-xs text-slate-400">Pelajari perbedaan makna harfiah (literal) dan makna kiasan yang sering muncul dalam lirik lagu.</p>
+                </div>
+                <div id="vocab-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 3: Latihan Lengkapi Lirik (Fill in the Blanks) -->
+            <div id="panel-blanks" class="tab-panel hidden bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-800">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-white">Latihan Melengkapi Lirik</h3>
+                        <p class="text-xs text-slate-400">Dengarkan baris lirik dan pilih kata yang tepat dari Bank Kata untuk mengisi bagian yang kosong.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="resetBlanksGame()" class="flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            Ulangi
+                        </button>
+                        <button onclick="checkBlanksAnswers()" class="flex items-center gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-xl shadow transition">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                            Periksa Jawaban
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Word Bank -->
+                <div class="bg-slate-950/80 border border-indigo-500/30 rounded-xl p-3.5 mb-5">
+                    <div class="text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                        Bank Kata (Klik kata untuk memilih, lalu klik kotak kosong)
+                    </div>
+                    <div id="word-bank" class="flex flex-wrap gap-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Blanks Sentences -->
+                <div id="blanks-container" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div id="blanks-feedback" class="hidden mt-5 p-4 rounded-xl border text-sm font-medium"></div>
+            </div>
+
+            <!-- TAB 4: Kuis & Tanya AI Tutor -->
+            <div id="panel-quiz" class="tab-panel hidden space-y-6">
+                <!-- Multiple Choice Quiz Card -->
+                <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="award" class="w-5 h-5 text-amber-400"></i>
+                                Kuis Pemahaman Lirik & Grammar
+                            </h3>
+                            <p class="text-xs text-slate-400">Uji pemahamanmu tentang makna kiasan dan tata bahasa dari lagu ini.</p>
+                        </div>
+                        <span id="quiz-score-badge" class="text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-full">
+                            Skor: 0 / 0
+                        </span>
+                    </div>
+
+                    <div id="quiz-container" class="space-y-5">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- AI Language Tutor Card -->
+                <div class="bg-gradient-to-br from-slate-900 via-indigo-950/30 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 sm:p-6 shadow-xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+                            <i data-lucide="bot" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-white">Tanya AI Tutor tentang Lirik Ini</h3>
+                            <p class="text-xs text-slate-400">Tanyakan arti slang, idiom, metafora, atau struktur grammar di lagu ini.</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Prompt Suggestions -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button onclick="askQuickAI('Jelaskan makna kiasan utama dan pesan moral dari lagu ini.')" class="text-xs bg-slate-800/90 hover:bg-indigo-600/40 text-indigo-200 border border-slate-700 px-3 py-1.5 rounded-full transition">
+                            ✨ Makna utama lagu ini
+                        </button>
+                        <button onclick="askQuickAI('Apa saja tenses atau struktur grammar penting yang digunakan dalam lirik lagu ini?')" class="text-xs bg-slate-800/90 hover:bg-indigo-600/40 text-indigo-200 border border-slate-700 px-3 py-1.5 rounded-full transition">
+                            📚 Analisis Grammar
+                        </button>
+                        <button onclick="askQuickAI('Apakah ada ungkapan informal, slang, atau idiom khas native speaker di lagu ini?')" class="text-xs bg-slate-800/90 hover:bg-indigo-600/40 text-indigo-200 border border-slate-700 px-3 py-1.5 rounded-full transition">
+                            🗣️ Ungkapan Native & Slang
+                        </button>
+                    </div>
+
+                    <!-- Chat History -->
+                    <div id="ai-chat-history" class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 mb-3 max-h-72 overflow-y-auto space-y-3 text-sm">
+                        <div class="flex items-start gap-2.5">
+                            <span class="text-lg">🤖</span>
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-3.5 py-2.5 text-slate-300 text-xs sm:text-sm leading-relaxed">
+                                Halo! Saya AI Tutor Bahasa Inggrismu. Ada bagian lirik dari lagu <strong id="ai-current-song-name" class="text-indigo-300">Count On Me</strong> yang bikin bingung? Tanyakan saja di bawah!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <form onsubmit="handleAskAI(event)" class="flex gap-2">
+                        <input type="text" id="ai-question-input" placeholder="Contoh: Apa arti 'count on me' dalam konteks lagu ini?" class="flex-1 bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:outline-none rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500">
+                        <button type="submit" id="ai-send-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition shrink-0">
+                            <span>Tanya</span>
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Word Definition Popover / Modal -->
+    <div id="word-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/65 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 shadow-2xl transform transition-all">
+            <div class="flex items-start justify-between mb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 id="modal-word-title" class="text-2xl font-bold text-white">word</h3>
+                        <button onclick="speakSingleWord()" class="p-1.5 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 rounded-lg transition" title="Dengar Pelafalan">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <span id="modal-word-pos" class="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        Noun / Verb
+                    </span>
+                </div>
+                <button onclick="closeWordModal()" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="modal-word-content" class="space-y-3 text-sm">
+                <div>
+                    <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Arti Bahasa Indonesia</span>
+                    <p id="modal-word-meaning" class="text-base font-semibold text-indigo-200 mt-0.5">Memuat arti...</p>
+                </div>
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Contoh Kalimat</span>
+                    <p id="modal-word-example" class="text-slate-200 italic mt-1">...</p>
+                    <p id="modal-word-example-id" class="text-slate-400 text-xs mt-1">...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Lyrics Input Modal -->
+    <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white">
+                        <i data-lucide="wand-2" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Buat Materi dari Lirik Sendiri</h3>
+                        <p class="text-xs text-slate-400">AI akan otomatis menerjemahkan, mencari idiom, & membuat kuis!</p>
+                    </div>
+                </div>
+                <button onclick="closeCustomModal()" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="generateCustomSong(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Judul Lagu</label>
+                        <input type="text" id="custom-title" required placeholder="Contoh: Fix You" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Penyanyi / Artis</label>
+                        <input type="text" id="custom-artist" required placeholder="Contoh: Coldplay" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Tempel Lirik Bahasa Inggris (4 - 12 baris disarankan)</label>
+                    <textarea id="custom-lyrics" rows="6" required placeholder="When you try your best, but you don't succeed&#10;When you get what you want, but not what you need&#10;When you feel so tired, but you can't sleep&#10;Stuck in reverse..." class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:outline-none rounded-xl p-3.5 text-sm text-white leading-relaxed"></textarea>
+                </div>
+
+                <div id="custom-error" class="hidden text-xs text-rose-400 bg-rose-950/50 border border-rose-500/30 p-3 rounded-xl"></div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeCustomModal()" class="px-4 py-2 rounded-xl text-sm text-slate-300 hover:bg-slate-800 transition">Batal</button>
+                    <button type="submit" id="custom-submit-btn" class="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg transition">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Proses dengan AI</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 bg-slate-900 border border-indigo-500/50 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transition-all">
+        <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
+        <span id="toast-message">Notifikasi</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. BUILT-IN SONGS DATABASE
+        // ==========================================
+        const songsDatabase = [
+            {
+                id: 'count-on-me',
+                title: 'Count On Me',
+                artist: 'Bruno Mars (Study Edition)',
+                level: 'Beginner',
+                genre: 'Pop / Friendship',
+                emoji: '🤝',
+                lyrics: [
+                    { en: "If you ever find yourself stuck in the middle of the sea", id: "Jika kamu pernah mendapati dirimu terjebak di tengah lautan" },
+                    { en: "I'll sail the world to find you", id: "Aku akan mengarungi dunia untuk menemukanmu" },
+                    { en: "If you ever find yourself lost in the dark and you can't see", id: "Jika kamu pernah tersesat dalam kegelapan dan tak bisa melihat" },
+                    { en: "I'll be the light to guide you", id: "Aku akan menjadi cahaya yang menuntunmu" },
+                    { en: "We find out what we're made of", id: "Kita mengetahui jati diri kita yang sebenarnya" },
+                    { en: "When we are called to help our friends in need", id: "Saat kita dipanggil untuk menolong teman yang membutuhkan" },
+                    { en: "You can count on me like one, two, three, I'll be there", id: "Kamu bisa mengandalkanku seperti satu, dua, tiga, aku akan ada di sana" }
+                ],
+                vocab: [
+                    {
+                        term: "Count on (someone)",
+                        type: "Phrasal Verb / Idiom",
+                        literal: "Menghitung di atas seseorang",
+                        meaning: "Mengandalkan atau mempercayai seseorang untuk membantu saat dibutuhkan.",
+                        example: "Don't worry about the presentation, you can count on me."
+                    },
+                    {
+                        term: "Stuck",
+                        type: "Adjective",
+                        literal: "Menempel / macet",
+                        meaning: "Terjebak dalam situasi sulit dan tidak bisa bergerak atau keluar.",
+                        example: "We were stuck in traffic for two hours."
+                    },
+                    {
+                        term: "What we're made of",
+                        type: "Idiom",
+                        literal: "Terbuat dari apa kita",
+                        meaning: "Kualitas karakter, keberanian, atau kekuatan sejati seseorang saat diuji.",
+                        example: "This tough challenge will show what our team is made of."
+                    },
+                    {
+                        term: "In need",
+                        type: "Prepositional Phrase",
+                        literal: "Dalam kebutuhan",
+                        meaning: "Sedang mengalami kesulitan atau sangat membutuhkan bantuan.",
+                        example: "A friend in need is a friend indeed."
+                    }
+                ],
+                blanks: [
+                    { sentence: "If you ever find yourself ___ in the middle of the sea", answer: "stuck" },
+                    { sentence: "I'll ___ the world to find you", answer: "sail" },
+                    { sentence: "I'll be the light to ___ you", answer: "guide" },
+                    { sentence: "You can ___ on me like one, two, three", answer: "count" }
+                ],
+                quiz: [
+                    {
+                        question: "Apa arti frasa 'You can count on me' dalam lagu ini?",
+                        options: [
+                            "Kamu bisa menghitung angka bersamaku",
+                            "Kamu bisa mengandalkanku kapan saja",
+                            "Kamu harus menungguku di laut",
+                            "Kamu bisa melupakanku"
+                        ],
+                        correct: 1,
+                        explanation: "'Count on' adalah phrasal verb yang berarti mengandalkan atau menaruh kepercayaan penuh pada seseorang."
+                    },
+                    {
+                        question: "Bentuk tenses apa yang dominan digunakan pada klausa 'I'll sail' dan 'I'll be'?",
+                        options: [
+                            "Simple Past Tense",
+                            "Present Continuous Tense",
+                            "Simple Future Tense (will)",
+                            "Present Perfect Tense"
+                        ],
+                        correct: 2,
+                        explanation: "'I'll' adalah singkatan dari 'I will', yang merupakan Simple Future Tense untuk menyatakan janji atau kesediaan di masa depan."
+                    }
+                ]
+            },
+            {
+                id: 'firework',
+                title: 'Firework',
+                artist: 'Katy Perry (Study Edition)',
+                level: 'Intermediate',
+                genre: 'Pop / Empowerment',
+                emoji: '🎆',
+                lyrics: [
+                    { en: "Do you ever feel like a plastic bag", id: "Pernahkah kamu merasa seperti kantong plastik" },
+                    { en: "Drifting through the wind, wanting to start again?", id: "Melayang tertiup angin, ingin memulai kembali?" },
+                    { en: "Do you ever feel, feel so paper-thin", id: "Pernahkah kamu merasa sangat rapuh bagai kertas tipis" },
+                    { en: "Like a house of cards, one blow from caving in?", id: "Seperti rumah kartu, satu tiupan saja bisa membuatnya runtuh?" },
+                    { en: "You just gotta ignite the light and let it shine", id: "Kamu hanya perlu menyalakan cahaya itu dan membiarkannya bersinar" },
+                    { en: "Cause baby, you're a firework", id: "Karena sayang, dirimu adalah kembang api" },
+                    { en: "Come on, show 'em what you're worth", id: "Ayolah, tunjukkan pada mereka betapa berharganya dirimu" }
+                ],
+                vocab: [
+                    {
+                        term: "Drifting",
+                        type: "Verb (Participle)",
+                        literal: "Hanyut / melayang",
+                        meaning: "Bergerak perlahan tanpa tujuan yang jelas, terbawa arus atau angin.",
+                        example: "Clouds were drifting lazily across the sky."
+                    },
+                    {
+                        term: "Caving in",
+                        type: "Phrasal Verb",
+                        literal: "Runtuh ke dalam (seperti gua)",
+                        meaning: "Ambruk secara fisik atau menyerah karena tekanan mental yang berat.",
+                        example: "The roof of the old building was close to caving in."
+                    },
+                    {
+                        term: "Gotta",
+                        type: "Informal Contraction",
+                        literal: "Singkatan dari '(have) got to'",
+                        meaning: "Harus (sangat umum digunakan dalam percakapan sehari-hari dan lagu).",
+                        example: "I've gotta go now, see you tomorrow!"
+                    },
+                    {
+                        term: "What you're worth",
+                        type: "Idiom / Clause",
+                        literal: "Berapa nilaimu",
+                        meaning: "Potensi, bakat, dan nilai berharga yang dimiliki seseorang.",
+                        example: "Never let anyone make you doubt what you're worth."
+                    }
+                ],
+                blanks: [
+                    { sentence: "___ through the wind, wanting to start again?", answer: "Drifting" },
+                    { sentence: "Like a house of cards, one blow from ___ in?", answer: "caving" },
+                    { sentence: "You just gotta ___ the light and let it shine", answer: "ignite" },
+                    { sentence: "Come on, show 'em what you're ___", answer: "worth" }
+                ],
+                quiz: [
+                    {
+                        question: "Apa makna metafora 'Like a house of cards, one blow from caving in'?",
+                        options: [
+                            "Suka bermain kartu di dalam rumah",
+                            "Merasa sangat rapuh dan mudah hancur oleh masalah kecil",
+                            "Memiliki rumah yang sangat megah",
+                            "Sedang membangun rumah baru"
+                        ],
+                        correct: 1,
+                        explanation: "'House of cards' adalah idiom untuk sesuatu yang rapuh dan tidak stabil; satu tiupan kecil ('one blow') bisa membuatnya runtuh ('caving in')."
+                    },
+                    {
+                        question: "Kata informal 'gotta' pada baris 'You just gotta ignite the light' merupakan kependekan dari...",
+                        options: [
+                            "Going to",
+                            "Got a",
+                            "(Have) got to",
+                            "Good to"
+                        ],
+                        correct: 2,
+                        explanation: "'Gotta' adalah bentuk informal dari '(have) got to' yang artinya 'harus', sedangkan 'gonna' adalah kependekan dari 'going to'."
+                    }
+                ]
+            },
+            {
+                id: 'viva-la-vida',
+                title: 'Viva La Vida',
+                artist: 'Coldplay (Study Edition)',
+                level: 'Advanced',
+                genre: 'Alternative Rock',
+                emoji: '👑',
+                lyrics: [
+                    { en: "I used to rule the world", id: "Aku dulu pernah menguasai dunia" },
+                    { en: "Seas would rise when I gave the word", id: "Lautan akan pasang ketika aku memberi perintah" },
+                    { en: "Now in the morning I sleep alone", id: "Kini di pagi hari aku tidur sendirian" },
+                    { en: "Sweep the streets I used to own", id: "Menyapu jalanan yang dulu pernah kumiliki" },
+                    { en: "I used to roll the dice", id: "Aku dulu terbiasa mengambil risiko besar" },
+                    { en: "Feel the fear in my enemy's eyes", id: "Merasakan ketakutan di mata musuh-musuhku" },
+                    { en: "For some reason I can't explain", id: "Entah karena alasan apa yang tak bisa kujelaskan" },
+                    { en: "Once you'd gone, there was never an honest word", id: "Begitu kau pergi, tak pernah lagi ada kata yang jujur" }
+                ],
+                vocab: [
+                    {
+                        term: "Used to (+ Verb 1)",
+                        type: "Grammar Structure",
+                        literal: "Terbiasa / dulu",
+                        meaning: "Menyatakan kebiasaan atau keadaan di masa lalu yang sekarang sudah tidak terjadi lagi.",
+                        example: "I used to live in Jakarta, but now I live in Bandung."
+                    },
+                    {
+                        term: "Give the word",
+                        type: "Idiom",
+                        literal: "Memberikan kata",
+                        meaning: "Memberikan perintah, izin, atau sinyal resmi untuk memulai sesuatu.",
+                        example: "Just give the word, and we will start the project."
+                    },
+                    {
+                        term: "Roll the dice",
+                        type: "Idiom",
+                        literal: "Melempar dadu",
+                        meaning: "Mengambil risiko atau melakukan sesuatu yang hasilnya belum pasti.",
+                        example: "Starting a new business means you have to roll the dice."
+                    }
+                ],
+                blanks: [
+                    { sentence: "I ___ to rule the world", answer: "used" },
+                    { sentence: "Seas would rise when I gave the ___", answer: "word" },
+                    { sentence: "___ the streets I used to own", answer: "Sweep" },
+                    { sentence: "I used to roll the ___", answer: "dice" }
+                ],
+                quiz: [
+                    {
+                        question: "Apa fungsi tata bahasa dari 'used to' dalam kalimat 'I used to rule the world'?",
+                        options: [
+                            "Menyatakan hal yang sedang dilakukan sekarang",
+                            "Menyatakan kebiasaan/keadaan masa lalu yang kini sudah berakhir",
+                            "Menyatakan rencana di masa depan",
+                            "Menyatakan kewajiban"
+                        ],
+                        correct: 1,
+                        explanation: "'Used to + base verb' digunakan untuk menceritakan fakta atau kebiasaan di masa lampau yang kontras dengan kondisi sekarang."
+                    },
+                    {
+                        question: "Idiom 'roll the dice' dalam lirik ini bermakna...",
+                        options: [
+                            "Bermain permainan papan setiap malam",
+                            "Mengambil keputusan berisiko tanpa jaminan hasil",
+                            "Menghitung kekayaan kerajaan",
+                            "Melarikan diri dari musuh"
+                        ],
+                        correct: 1,
+                        explanation: "Seperti melempar dadu dalam permainan, 'roll the dice' berarti berani mengambil risiko besar."
+                    }
+                ]
+            },
+            {
+                id: 'perfect',
+                title: 'Perfect',
+                artist: 'Ed Sheeran (Study Edition)',
+                level: 'Beginner',
+                genre: 'Acoustic / Romance',
+                emoji: '🎸',
+                lyrics: [
+                    { en: "I found a love for me", id: "Aku menemukan cinta untuk diriku" },
+                    { en: "Darling, just dive right in and follow my lead", id: "Sayang, terjunlah langsung dan ikuti langkahku" },
+                    { en: "Well, I found a girl, beautiful and sweet", id: "Ya, aku menemukan seorang gadis, cantik dan manis" },
+                    { en: "Oh, I never knew you were the someone waiting for me", id: "Oh, aku tak pernah tahu kamulah seseorang yang menantiku" },
+                    { en: "Cause we were just kids when we fell in love", id: "Karena kita hanyalah anak-anak saat kita jatuh cinta" },
+                    { en: "Not knowing what it was", id: "Tanpa mengetahui apa arti cinta itu sebenarnya" },
+                    { en: "I will not give you up this time", id: "Aku tidak akan menyerah melepasmu kali ini" }
+                ],
+                vocab: [
+                    {
+                        term: "Dive right in",
+                        type: "Idiom / Phrasal Verb",
+                        literal: "Menyelam langsung ke dalam",
+                        meaning: "Mulai melakukan sesuatu dengan penuh semangat tanpa ragu-ragu.",
+                        example: "Don't hesitate, just dive right in and start learning!"
+                    },
+                    {
+                        term: "Follow my lead",
+                        type: "Idiom",
+                        literal: "Ikuti pimpinan saya",
+                        meaning: "Mencontoh atau mengikuti apa yang saya lakukan (sering dipakai dalam dansa atau kerja tim).",
+                        example: "If you don't know the dance steps, just follow my lead."
+                    },
+                    {
+                        term: "Give (someone) up",
+                        type: "Phrasal Verb",
+                        literal: "Menyerahkan ke atas",
+                        meaning: "Menyerah, berhenti memperjuangkan, atau melepaskan seseorang.",
+                        example: "True friends never give up on each other."
+                    }
+                ],
+                blanks: [
+                    { sentence: "Darling, just ___ right in and follow my lead", answer: "dive" },
+                    { sentence: "Oh, I never knew you were the someone ___ for me", answer: "waiting" },
+                    { sentence: "Cause we were just kids when we ___ in love", answer: "fell" },
+                    { sentence: "I will not ___ you up this time", answer: "give" }
+                ],
+                quiz: [
+                    {
+                        question: "Apa arti ungkapan 'Dive right in' pada baris kedua?",
+                        options: [
+                            "Berenang di kolam yang dalam",
+                            "Langsung terlibat / memulai tanpa ragu-ragu",
+                            "Berlari menjauh dari masalah",
+                            "Menunggu waktu yang tepat"
+                        ],
+                        correct: 1,
+                        explanation: "'Dive right in' berarti terjun langsung melakukan sesuatu dengan antusias tanpa ragu."
+                    },
+                    {
+                        question: "Kata 'fell' pada 'when we fell in love' adalah bentuk Past Tense (Verb 2) dari kata...",
+                        options: [
+                            "Feel",
+                            "Fill",
+                            "Fall",
+                            "Fail"
+                        ],
+                        correct: 2,
+                        explanation: "'Fall' (jatuh) berubah menjadi 'fell' di bentuk lampau (Verb 2). Jangan tertukar dengan 'feel' -> 'felt'."
+                    }
+                ]
+            }
+        ];
+
+        // Built-in quick dictionary fallback for instant word clicks
+        const localDictionary = {
+            "ever": { pos: "Adverb", meaning: "Pernah / kapan pun", ex: "Have you ever been to London?", exId: "Pernahkah kamu pergi ke London?" },
+            "find": { pos: "Verb", meaning: "Menemukan / mendapati", ex: "I hope you find what you are looking for.", exId: "Semoga kamu menemukan apa yang kamu cari." },
+            "yourself": { pos: "Pronoun", meaning: "Dirimu sendiri", ex: "Be proud of yourself.", exId: "Banggalah pada dirimu sendiri." },
+            "stuck": { pos: "Adjective", meaning: "Terjebak / macet", ex: "The key is stuck in the lock.", exId: "Kuncinya macet di dalam lubang kunci." },
+            "middle": { pos: "Noun", meaning: "Tengah / pertengahan", ex: "He stood in the middle of the room.", exId: "Dia berdiri di tengah ruangan." },
+            "sea": { pos: "Noun", meaning: "Laut / lautan", ex: "The sea is very calm today.", exId: "Laut sangat tenang hari ini." },
+            "sail": { pos: "Verb", meaning: "Berlayar / mengarungi", ex: "They plan to sail across the Pacific.", exId: "Mereka berencana berlayar melintasi Pasifik." },
+            "world": { pos: "Noun", meaning: "Dunia", ex: "She wants to travel around the world.", exId: "Dia ingin berkeliling dunia." },
+            "lost": { pos: "Adjective", meaning: "Tersesat / hilang", ex: "We got lost in the big city.", exId: "Kami tersesat di kota besar itu." },
+            "dark": { pos: "Noun / Adjective", meaning: "Kegelapan / gelap", ex: "Cats can see well in the dark.", exId: "Kucing bisa melihat dengan baik dalam kegelapan." },
+            "light": { pos: "Noun", meaning: "Cahaya / lampu", ex: "Turn on the light, please.", exId: "Tolong nyalakan lampunya." },
+            "guide": { pos: "Verb / Noun", meaning: "Menuntun / memandu", ex: "The stars helped guide the sailors.", exId: "Bintang-bintang membantu memandu para pelaut." },
+            "count": { pos: "Verb", meaning: "Menghitung / (count on: mengandalkan)", ex: "Count from one to ten.", exId: "Hitung dari satu sampai sepuluh." },
+            "drifting": { pos: "Verb", meaning: "Melayang / hanyut terbawa arus", ex: "A boat was drifting down the river.", exId: "Sebuah perahu hanyut menyusuri sungai." },
+            "wind": { pos: "Noun", meaning: "Angin", ex: "The wind is blowing strongly.", exId: "Angin bertiup kencang." },
+            "ignite": { pos: "Verb", meaning: "Menyalakan / membakar semangat", ex: "His speech helped ignite passion in the team.", exId: "Pidatonya membakar semangat tim." },
+            "shine": { pos: "Verb", meaning: "Bersinar / bercahaya", ex: "The sun will shine tomorrow.", exId: "Matahari akan bersinar besok." },
+            "worth": { pos: "Noun / Adjective", meaning: "Nilai / berharga", ex: "This painting is worth millions.", exId: "Lukisan ini bernilai jutaan." },
+            "rule": { pos: "Verb / Noun", meaning: "Memerintah / menguasai / aturan", ex: "The king ruled the country wisely.", exId: "Raja memerintah negara dengan bijaksana." },
+            "sweep": { pos: "Verb", meaning: "Menyapu", ex: "Please sweep the floor.", exId: "Tolong sapu lantainya." },
+            "dice": { pos: "Noun", meaning: "Dadu", ex: "It's your turn to roll the dice.", exId: "Giliranmu melempar dadu." },
+            "darling": { pos: "Noun", meaning: "Sayang / kekasih", ex: "Good morning, darling.", exId: "Selamat pagi, sayang." },
+            "dive": { pos: "Verb", meaning: "Menyelam / terjun", ex: "He loves to dive into the pool.", exId: "Dia suka terjun ke kolam renang." },
+            "follow": { pos: "Verb", meaning: "Mengikuti", ex: "Follow me to the exit.", exId: "Ikuti saya menuju pintu keluar." },
+            "sweet": { pos: "Adjective", meaning: "Manis / baik hati", ex: "That was very sweet of you.", exId: "Kamu baik sekali." }
+        };
+
+        // ==========================================
+        // 2. APPLICATION STATE
+        // ==========================================
+        let currentSong = songsDatabase[0];
+        let currentFilter = 'ALL';
+        let speechRate = 1;
+        let isPlayingAll = false;
+        let currentLineIndex = -1;
+        let userXP = 0;
+
+        // Blanks Game State
+        let selectedBankWord = null;
+        let userBlanksAnswers = {}; // index -> word
+
+        // Quiz State
+        let quizAnswered = {}; // qIndex -> chosenOptionIndex
+        let quizScore = 0;
+
+        // ==========================================
+        // 3. INITIALIZATION & NAVIGATION
+        // ==========================================
+        window.onload = () => {
+            lucide.createIcons();
+            renderSongList();
+            selectSong(songsDatabase[0].id);
+        };
+
+        function addXP(points, reason) {
+            userXP += points;
+            document.getElementById('user-xp').textContent = `${userXP} XP`;
+            showToast(`+${points} XP! ${reason}`);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+                btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/60');
+            });
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+            activeBtn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/60');
+
+            // Update panels
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+            document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 4. SONG LIST & SELECTION
+        // ==========================================
+        function filterSongs(level) {
+            currentFilter = level;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+            const activeBtn = document.getElementById(`filter-${level}`);
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+            renderSongList();
+        }
+
+        function getLevelBadgeClass(level) {
+            if (level === 'Beginner') return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+            if (level === 'Intermediate') return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+            return 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+        }
+
+        function renderSongList() {
+            const container = document.getElementById('song-list');
+            const filtered = currentFilter === 'ALL'
+                ? songsDatabase
+                : songsDatabase.filter(s => s.level === currentFilter);
+
+            document.getElementById('song-count').textContent = `${filtered.length} Lagu`;
+
+            container.innerHTML = filtered.map(song => {
+                const isSelected = song.id === currentSong.id;
+                return `
+                    <div onclick="selectSong('${song.id}')"
+                         class="cursor-pointer p-3 rounded-xl border transition-all flex items-center gap-3 ${
+                            isSelected
+                            ? 'bg-indigo-600/20 border-indigo-500 shadow-md'
+                            : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900'
+                         }">
+                        <div class="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center text-xl shrink-0">
+                            ${song.emoji || '🎵'}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <h4 class="text-sm font-bold text-white truncate">${song.title}</h4>
+                            </div>
+                            <p class="text-xs text-slate-400 truncate">${song.artist}</p>
+                            <span class="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${getLevelBadgeClass(song.level)}">
+                                ${song.level}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectSong(songId) {
+            stopSpeech();
+            const found = songsDatabase.find(s => s.id === songId);
+            if (!found) return;
+            currentSong = found;
+
+            // Update Header Banner
+            document.getElementById('active-song-cover').textContent = currentSong.emoji || '🎵';
+            document.getElementById('active-song-title').textContent = currentSong.title;
+            document.getElementById('active-song-artist').textContent = currentSong.artist;
+            document.getElementById('active-song-genre').textContent = currentSong.genre || 'Music Study';
+            document.getElementById('ai-current-song-name').textContent = currentSong.title;
+
+            const levelBadge = document.getElementById('active-song-level');
+            levelBadge.textContent = currentSong.level;
+            levelBadge.className = `text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${getLevelBadgeClass(currentSong.level)}`;
+
+            renderSongList();
+            renderLyrics();
+            renderVocab();
+            resetBlanksGame();
+            renderQuiz();
+        }
+
+        // ==========================================
+        // 5. LYRICS & WEB SPEECH API (KARAOKE)
+        // ==========================================
+        function makeWordsClickable(sentence) {
+            // Split words while preserving punctuation
+            return sentence.split(' ').map(token => {
+                const cleanWord = token.replace(/[^a-zA-Z']/g, '');
+                if (!cleanWord) return token;
+                return `<span onclick="inspectWord('${cleanWord.replace(/'/g, "\\'")}')" class="lyric-word">${token}</span>`;
+            }).join(' ');
+        }
+
+        function renderLyrics() {
+            const showTrans = document.getElementById('toggle-translation').checked;
+            const container = document.getElementById('lyrics-container');
+
+            container.innerHTML = currentSong.lyrics.map((line, idx) => {
+                const isActive = idx === currentLineIndex;
+                return `
+                    <div id="lyric-line-${idx}" class="p-3.5 sm:p-4 rounded-xl border transition-all flex items-start justify-between gap-3 ${
+                        isActive
+                        ? 'active-line border-indigo-500/50'
+                        : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700'
+                    }">
+                        <div class="space-y-1 flex-1">
+                            <p class="text-base sm:text-lg font-semibold text-white leading-relaxed">
+                                ${makeWordsClickable(line.en)}
+                            </p>
+                            ${showTrans ? `<p class="text-xs sm:text-sm text-indigo-300/90 font-normal">${line.id}</p>` : ''}
+                        </div>
+                        <button onclick="speakLine(${idx})" title="Dengar baris ini"
+                                class="p-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-slate-800 transition shrink-0">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function setSpeechRate(rate) {
+            speechRate = rate;
+            document.querySelectorAll('.rate-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'font-medium');
+                btn.classList.add('text-slate-400');
+            });
+            const active = document.getElementById(`rate-${rate}`);
+            active.classList.add('bg-indigo-600', 'text-white', 'font-medium');
+            active.classList.remove('text-slate-400');
+            showToast(`Kecepatan suara diatur ke ${rate}x`);
+        }
+
+        function speakLine(index, onEndCallback = null) {
+            if (!('speechSynthesis' in window)) {
+                showToast("Browser Anda tidak mendukung fitur Text-to-Speech.");
+                return;
+            }
+            window.speechSynthesis.cancel();
+            currentLineIndex = index;
+            renderLyrics();
+
+            const utterance = new SpeechSynthesisUtterance(currentSong.lyrics[index].en);
+            utterance.lang = 'en-US';
+            utterance.rate = speechRate;
+
+            utterance.onend = () => {
+                if (onEndCallback) {
+                    onEndCallback();
+                } else {
+                    currentLineIndex = -1;
+                    renderLyrics();
+                }
+            };
+
+            utterance.onerror = () => {
+                currentLineIndex = -1;
+                isPlayingAll = false;
+                updatePlayAllButton();
+                renderLyrics();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function togglePlayAll() {
+            if (isPlayingAll) {
+                stopSpeech();
+                return;
+            }
+            isPlayingAll = true;
+            updatePlayAllButton();
+            playSequence(0);
+        }
+
+        function playSequence(idx) {
+            if (!isPlayingAll || idx >= currentSong.lyrics.length) {
+                stopSpeech();
+                return;
+            }
+            const lineEl = document.getElementById(`lyric-line-${idx}`);
+            if (lineEl) lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            speakLine(idx, () => {
+                if (isPlayingAll) {
+                    setTimeout(() => playSequence(idx + 1), 350);
+                }
+            });
+        }
+
+        function stopSpeech() {
+            isPlayingAll = false;
+            currentLineIndex = -1;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            updatePlayAllButton();
+            renderLyrics();
+        }
+
+        function updatePlayAllButton() {
+            const btnText = document.getElementById('play-all-text');
+            const btnIcon = document.getElementById('play-all-icon');
+            if (isPlayingAll) {
+                btnText.textContent = 'Jeda Karaoke';
+                btnIcon.setAttribute('data-lucide', 'pause');
+            } else {
+                btnText.textContent = 'Putar Karaoke';
+                btnIcon.setAttribute('data-lucide', 'play');
+            }
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 6. WORD DICTIONARY INSPECTOR (LOCAL + GEMINI AI)
+        // ==========================================
+        let currentInspectedWord = "";
+
+        async function inspectWord(word) {
+            currentInspectedWord = word;
+            const modal = document.getElementById('word-modal');
+            document.getElementById('modal-word-title').textContent = word;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            const lower = word.toLowerCase();
+            if (localDictionary[lower]) {
+                const entry = localDictionary[lower];
+                document.getElementById('modal-word-pos').textContent = entry.pos;
+                document.getElementById('modal-word-meaning').textContent = entry.meaning;
+                document.getElementById('modal-word-example').textContent = `"${entry.ex}"`;
+                document.getElementById('modal-word-example-id').textContent = entry.exId;
+                return;
+            }
+
+            // Fallback to Gemini API for any other word in lyrics
+            document.getElementById('modal-word-pos').textContent = "Menganalisis...";
+            document.getElementById('modal-word-meaning').textContent = "Mencari definisi dengan AI...";
+            document.getElementById('modal-word-example').textContent = "Membuat contoh kalimat...";
+            document.getElementById('modal-word-example-id').textContent = "";
+
+            try {
+                const prompt = `Berikan arti kata bahasa Inggris "${word}" dalam konteks lagu "${currentSong.title}" oleh ${currentSong.artist}. Balas HANYA dalam format JSON valid dengan properti: {"pos": "jenis kata (misal: Verb / Noun / Adjective)", "meaning": "arti singkat dalam Bahasa Indonesia", "ex": "1 contoh kalimat bahasa Inggris sederhana", "exId": "terjemahan contoh kalimat dalam Bahasa Indonesia"}.`;
+                const responseText = await callGeminiJSON(prompt);
+                const parsed = JSON.parse(responseText);
+
+                document.getElementById('modal-word-pos').textContent = parsed.pos || "Vocabulary";
+                document.getElementById('modal-word-meaning').textContent = parsed.meaning || "-";
+                document.getElementById('modal-word-example').textContent = `"${parsed.ex || ''}"`;
+                document.getElementById('modal-word-example-id').textContent = parsed.exId || "";
+            } catch (err) {
+                document.getElementById('modal-word-pos').textContent = "Kata Bahasa Inggris";
+                document.getElementById('modal-word-meaning').textContent = `Kata "${word}" (Gunakan fitur Tanya AI untuk penjelasan mendalam).`;
+                document.getElementById('modal-word-example').textContent = "";
+            }
+        }
+
+        function speakSingleWord() {
+            if (!currentInspectedWord || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(currentInspectedWord);
+            u.lang = 'en-US';
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
+
+        function closeWordModal() {
+            const modal = document.getElementById('word-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ==========================================
+        // 7. VOCABULARY & IDIOM CARDS
+        // ==========================================
+        function renderVocab() {
+            const grid = document.getElementById('vocab-grid');
+            grid.innerHTML = currentSong.vocab.map(item => `
+                <div class="bg-slate-950/70 border border-slate-800 hover:border-indigo-500/40 rounded-2xl p-4 flex flex-col justify-between transition">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h4 class="text-lg font-bold text-indigo-300">${item.term}</h4>
+                            <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                                ${item.type}
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-400 mb-2">
+                            <span class="font-semibold text-slate-500">Makna Harfiah:</span> <span class="italic">${item.literal}</span>
+                        </div>
+                        <p class="text-sm text-slate-200 leading-relaxed mb-3">
+                            ${item.meaning}
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800/90 rounded-xl p-3 text-xs">
+                        <span class="text-indigo-400 font-semibold block mb-1">Contoh Penggunaan:</span>
+                        <p class="text-slate-300 italic">"${item.example}"</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==========================================
+        // 8. FILL IN THE BLANKS GAME
+        // ==========================================
+        function resetBlanksGame() {
+            selectedBankWord = null;
+            userBlanksAnswers = {};
+            const feedback = document.getElementById('blanks-feedback');
+            feedback.classList.add('hidden');
+            renderBlanksGame();
+        }
+
+        function renderBlanksGame() {
+            const bankContainer = document.getElementById('word-bank');
+            const blanksContainer = document.getElementById('blanks-container');
+
+            // Shuffle words deterministically or randomly
+            const allAnswers = currentSong.blanks.map(b => b.answer);
+            const shuffled = [...allAnswers].sort(() => Math.random() - 0.5);
+            const usedWords = Object.values(userBlanksAnswers);
+
+            bankContainer.innerHTML = shuffled.map(word => {
+                const isUsed = usedWords.includes(word);
+                const isSelected = selectedBankWord === word;
+                return `
+                    <button onclick="selectBankWord('${word.replace(/'/g, "\\'")}')"
+                            ${isUsed ? 'disabled' : ''}
+                            class="px-3.5 py-1.5 rounded-xl text-sm font-semibold border transition ${
+                                isUsed
+                                ? 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed line-through'
+                                : isSelected
+                                    ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg scale-105'
+                                    : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-indigo-200'
+                            }">
+                        ${word}
+                    </button>
+                `;
+            }).join('');
+
+            blanksContainer.innerHTML = currentSong.blanks.map((item, idx) => {
+                const filledWord = userBlanksAnswers[idx] || '_______';
+                const isFilled = Boolean(userBlanksAnswers[idx]);
+                const parts = item.sentence.split('___');
+
+                return `
+                    <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="text-base sm:text-lg text-slate-200 leading-relaxed">
+                            <span>${parts[0]}</span>
+                            <button onclick="placeOrClearBlank(${idx})"
+                                    class="mx-1 px-3 py-0.5 rounded-lg font-bold border-b-2 transition ${
+                                        isFilled
+                                        ? 'bg-indigo-600/30 border-indigo-400 text-indigo-200 hover:bg-rose-500/20 hover:border-rose-400'
+                                        : 'bg-slate-800 border-slate-500 text-slate-400 hover:border-indigo-400'
+                                    }">
+                                ${filledWord}
+                            </button>
+                            <span>${parts[1] || ''}</span>
+                        </div>
+                        <button onclick="speakBlankSentence(${idx})" class="self-start sm:self-center p-2 rounded-lg bg-slate-900 hover:bg-indigo-600 text-slate-300 hover:text-white border border-slate-800 transition" title="Dengarkan kalimat lengkap">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function selectBankWord(word) {
+            selectedBankWord = (selectedBankWord === word) ? null : word;
+            renderBlanksGame();
+        }
+
+        function placeOrClearBlank(idx) {
+            if (selectedBankWord) {
+                userBlanksAnswers[idx] = selectedBankWord;
+                selectedBankWord = null;
+            } else if (userBlanksAnswers[idx]) {
+                delete userBlanksAnswers[idx];
+            } else {
+                showToast("Pilih kata dari Bank Kata terlebih dahulu!");
+            }
+            renderBlanksGame();
+        }
+
+        function speakBlankSentence(idx) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const fullSentence = currentSong.blanks[idx].sentence.replace('___', currentSong.blanks[idx].answer);
+            const u = new SpeechSynthesisUtterance(fullSentence);
+            u.lang = 'en-US';
+            u.rate = speechRate;
+            window.speechSynthesis.speak(u);
+        }
+
+        function checkBlanksAnswers() {
+            let correctCount = 0;
+            const total = currentSong.blanks.length;
+
+            currentSong.blanks.forEach((item, idx) => {
+                if ((userBlanksAnswers[idx] || '').toLowerCase() === item.answer.toLowerCase()) {
+                    correctCount++;
+                }
+            });
+
+            const feedback = document.getElementById('blanks-feedback');
+            feedback.classList.remove('hidden', 'bg-emerald-950/60', 'border-emerald-500/40', 'text-emerald-200', 'bg-amber-950/60', 'border-amber-500/40', 'text-amber-200');
+
+            if (correctCount === total) {
+                feedback.classList.add('bg-emerald-950/60', 'border-emerald-500/40', 'text-emerald-200');
+                feedback.innerHTML = `🎉 <strong>Sempurna!</strong> Kamu menjawab semua ${total} bagian kosong dengan benar!`;
+                addXP(30, "Menyelesaikan Lengkapi Lirik!");
+            } else {
+                feedback.classList.add('bg-amber-950/60', 'border-amber-500/40', 'text-amber-200');
+                feedback.innerHTML = `💡 Kamu benar <strong>${correctCount} dari ${total}</strong>. Klik kata di kotak kosong untuk menghapus dan coba lagi, atau klik ikon speaker untuk petunjuk audio!`;
+            }
+        }
+
+        // ==========================================
+        // 9. MULTIPLE CHOICE QUIZ
+        // ==========================================
+        function renderQuiz() {
+            quizAnswered = {};
+            quizScore = 0;
+            updateQuizScoreBadge();
+
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = currentSong.quiz.map((q, qIdx) => `
+                <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
+                    <p class="font-semibold text-white text-sm sm:text-base">
+                        <span class="text-indigo-400 mr-1.5">${qIdx + 1}.</span>${q.question}
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        ${q.options.map((opt, optIdx) => `
+                            <button id="quiz-opt-${qIdx}-${optIdx}" onclick="answerQuiz(${qIdx}, ${optIdx})"
+                                    class="text-left p-3 rounded-xl border border-slate-800 bg-slate-900/90 hover:border-indigo-500/50 text-xs sm:text-sm text-slate-200 transition">
+                                <span class="font-bold text-indigo-400 mr-2">${String.fromCharCode(65 + optIdx)}.</span>${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="quiz-exp-${qIdx}" class="hidden text-xs bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 p-3 rounded-xl leading-relaxed">
+                        <strong>Pembahasan:</strong> ${q.explanation}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function answerQuiz(qIdx, optIdx) {
+            if (quizAnswered[qIdx] !== undefined) return;
+            quizAnswered[qIdx] = optIdx;
+
+            const questionObj = currentSong.quiz[qIdx];
+            const isCorrect = optIdx === questionObj.correct;
+
+            if (isCorrect) {
+                quizScore++;
+                addXP(20, "Jawaban kuis benar!");
+            }
+
+            // Style options
+            questionObj.options.forEach((_, idx) => {
+                const btn = document.getElementById(`quiz-opt-${qIdx}-${idx}`);
+                btn.disabled = true;
+                if (idx === questionObj.correct) {
+                    btn.classList.remove('border-slate-800', 'bg-slate-900/90');
+                    btn.classList.add('bg-emerald-600/25', 'border-emerald-500', 'text-emerald-200', 'font-semibold');
+                } else if (idx === optIdx && !isCorrect) {
+                    btn.classList.remove('border-slate-800', 'bg-slate-900/90');
+                    btn.classList.add('bg-rose-600/25', 'border-rose-500', 'text-rose-200');
+                }
+            });
+
+            document.getElementById(`quiz-exp-${qIdx}`).classList.remove('hidden');
+            updateQuizScoreBadge();
+        }
+
+        function updateQuizScoreBadge() {
+            document.getElementById('quiz-score-badge').textContent = `Skor: ${quizScore} / ${currentSong.quiz.length}`;
+        }
+
+        // ==========================================
+        // 10. GEMINI API INTEGRATION (AI TUTOR & CUSTOM LYRICS)
+        // ==========================================
+        async function fetchWithBackoff(url, options, maxRetries = 4) {
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    if (response.status !== 429 && response.status < 500) {
+                        throw new Error(`HTTP Error: ${response.status}`);
+                    }
+                } catch (err) {
+                    if (i === maxRetries - 1) throw err;
+                }
+                await new Promise(res => setTimeout(res, delay));
+                delay *= 2;
+            }
+        }
+
+        async function callGeminiText(userPrompt, systemInstruction) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+            const result = await fetchWithBackoff(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return result?.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, AI tidak memberikan respons.";
+        }
+
+        async function callGeminiJSON(userPrompt) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            };
+            const result = await fetchWithBackoff(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return result?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+        }
+
+        // AI Language Tutor Chat
+        function askQuickAI(question) {
+            document.getElementById('ai-question-input').value = question;
+            handleAskAI(new Event('submit'));
+        }
+
+        async function handleAskAI(e) {
+            e.preventDefault();
+            const input = document.getElementById('ai-question-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const chatBox = document.getElementById('ai-chat-history');
+            const sendBtn = document.getElementById('ai-send-btn');
+
+            // Append User Message
+            chatBox.innerHTML += `
+                <div class="flex items-start justify-end gap-2.5">
+                    <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-3.5 py-2.5 text-xs sm:text-sm max-w-[85%]">
+                        ${escapeHTML(question)}
+                    </div>
+                </div>
+            `;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Loading bubble
+            const loadingId = `ai-loading-${Date.now()}`;
+            chatBox.innerHTML += `
+                <div id="${loadingId}" class="flex items-start gap-2.5">
+                    <span class="text-lg">🤖</span>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-3.5 py-2.5 text-slate-400 text-xs sm:text-sm">
+                        Sedang menganalisis lirik...
+                    </div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            sendBtn.disabled = true;
+
+            try {
+                const lyricsText = currentSong.lyrics.map(l => l.en).join('\n');
+                const sysPrompt = `Kamu adalah guru Bahasa Inggris yang ramah, suportif, dan ahli dalam menganalisis lirik lagu untuk pelajar Indonesia. Gunakan Bahasa Indonesia yang jelas, terstruktur dengan poin-poin singkat jika perlu, dan sertakan contoh praktis.`;
+                const fullPrompt = `Konteks Lagu: "${currentSong.title}" oleh ${currentSong.artist}.\nLirik:\n${lyricsText}\n\nPertanyaan Pengguna: ${question}`;
+
+                const answer = await callGeminiText(fullPrompt, sysPrompt);
+                const formattedAnswer = escapeHTML(answer).replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-300">$1</strong>').replace(/\n/g, '<br>');
+
+                document.getElementById(loadingId).innerHTML = `
+                    <span class="text-lg">🤖</span>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-3.5 py-2.5 text-slate-200 text-xs sm:text-sm leading-relaxed max-w-[90%]">
+                        ${formattedAnswer}
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById(loadingId).innerHTML = `
+                    <span class="text-lg">⚠️</span>
+                    <div class="bg-rose-950/60 border border-rose-500/30 rounded-2xl px-3.5 py-2.5 text-rose-200 text-xs">
+                        Gagal terhubung ke AI Tutor. Pastikan koneksi internet aktif dan coba lagi.
+                    </div>
+                `;
+            } finally {
+                sendBtn.disabled = false;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        // Custom Song Generator Modal
+        function openCustomModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('custom-error').classList.add('hidden');
+        }
+
+        async function generateCustomSong(e) {
+            e.preventDefault();
+            const title = document.getElementById('custom-title').value.trim();
+            const artist = document.getElementById('custom-artist').value.trim();
+            const rawLyrics = document.getElementById('custom-lyrics').value.trim();
+            const submitBtn = document.getElementById('custom-submit-btn');
+            const errBox = document.getElementById('custom-error');
+
+            const lines = rawLyrics.split('\n').map(l => l.trim()).filter(l => l.length > 0).slice(0, 14);
+            if (lines.length < 2) {
+                errBox.textContent = "Masukkan minimal 2 baris lirik lagu Bahasa Inggris.";
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            errBox.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>AI Sedang Memproses...</span>`;
+            lucide.createIcons();
+
+            try {
+                const prompt = `Analisis lirik lagu Bahasa Inggris berjudul "${title}" oleh "${artist}" berikut ini untuk aplikasi belajar bahasa Inggris bagi orang Indonesia:
+${lines.join('\n')}
+
+Kembalikan HANYA JSON valid sesuai struktur persis berikut:
+{
+  "level": "Beginner" atau "Intermediate" atau "Advanced",
+  "genre": "Genre singkat",
+  "lyrics": [
+    { "en": "baris asli bahasa Inggris", "id": "terjemahan natural bahasa Indonesia" }
+  ],
+  "vocab": [
+    {
+      "term": "kata/idiom/phrasal verb penting dari lirik",
+      "type": "Idiom / Phrasal Verb / Vocabulary",
+      "literal": "arti harfiah singkat",
+      "meaning": "arti kontekstual bahasa Indonesia",
+      "example": "contoh kalimat bahasa Inggris"
+    }
+  ],
+  "blanks": [
+    {
+      "sentence": "baris lirik dengan 1 kata kunci diganti menjadi ___",
+      "answer": "kata kunci yang dihilangkan (1 kata saja)"
+    }
+  ],
+  "quiz": [
+    {
+      "question": "pertanyaan pilihan ganda bahasa Indonesia tentang makna atau grammar lirik",
+      "options": ["pilihan A", "pilihan B", "pilihan C", "pilihan D"],
+      "correct": 0,
+      "explanation": "pembahasan jawaban benar dalam bahasa Indonesia"
+    }
+  ]
+}
+Pastikan minimal ada 3 item vocab, 4 item blanks, dan 2 item quiz.`;
+
+                const jsonStr = await callGeminiJSON(prompt);
+                const generated = JSON.parse(jsonStr);
+
+                const newSong = {
+                    id: `custom-${Date.now()}`,
+                    title: title,
+                    artist: artist,
+                    level: ['Beginner', 'Intermediate', 'Advanced'].includes(generated.level) ? generated.level : 'Intermediate',
+                    genre: generated.genre || 'Custom Song',
+                    emoji: '✨',
+                    lyrics: generated.lyrics && generated.lyrics.length ? generated.lyrics : lines.map(l => ({ en: l, id: '(Terjemahan tidak tersedia)' })),
+                    vocab: generated.vocab || [],
+                    blanks: generated.blanks || [],
+                    quiz: generated.quiz || []
+                };
+
+                songsDatabase.unshift(newSong);
+                filterSongs('ALL');
+                selectSong(newSong.id);
+                closeCustomModal();
+                addXP(50, "Membuat materi belajar lagu custom!");
+
+                // Clear inputs
+                document.getElementById('custom-title').value = '';
+                document.getElementById('custom-artist').value = '';
+                document.getElementById('custom-lyrics').value = '';
+            } catch (err) {
+                errBox.textContent = "Terjadi kendala saat AI memproses lirik. Silakan coba lagi beberapa saat.";
+                errBox.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Proses dengan AI</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag]));
+        }
+    </script>
+</body>
+</html>
